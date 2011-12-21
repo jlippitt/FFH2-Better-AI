@@ -1475,10 +1475,12 @@ class CvGameUtils:
 				else:
 					iValue[sProd.index('UNITCLASS_WORKER')]+=300+(3/2*pPlayer.getNumCities()/(1+pPlayer.getUnitClassCountPlusMaking(gc.getInfoTypeForString('UNITCLASS_WORKER'))))*1000
 
-		
+        # Better AI: Only go all out military if we're looking to attack someone
+		bConquestMode = pPlayer.isConquestMode() and iTeam.getAnyWarPlanCount(True)
+        # End Better AI
 					
 # Civ needs more Settlers?
-		if	(not pPlayer.isConquestMode()) or pPlayer.countGroupFlagUnits(10)>20:
+		if	(not bConquestMode) or pPlayer.countGroupFlagUnits(10)>20:
 			if pPlayer.getNumCities() < pPlayer.getMaxCities() or pPlayer.getMaxCities()<=0:
 				bvalid=false
 				if (pCity.getCurrentProductionDifference(True,False)>10 and pCity.getPopulation() > 4):
@@ -1495,7 +1497,7 @@ class CvGameUtils:
 						iValue[sProd.index('UNITCLASS_SETTLER')]=17000
 
 #Civ Needs more Barbsmashers?
-		if not pPlayer.isConquestMode():
+		if not bConquestMode:
 			if pPlayer.getUnitClassCountPlusMaking(gc.getInfoTypeForString('UNITCLASS_SETTLER'))>0:		
 				if pPlayer.countGroupFlagUnits(7)<10:	# 7 is GROUPFLAG_DEFENSE_NEW
 					iValue[sProd.index('BUILDINGCLASS_TRAINING_YARD')]+=2502
@@ -1713,7 +1715,7 @@ class CvGameUtils:
 				iValue[sProd.index('BUILDINGCLASS_CATACOMB_LIBRALUS')]+=3000								
 			if pCity.getNumBuilding(gc.getInfoTypeForString('BUILDING_MAGE_GUILD'))==1:						
 				iValue[sProd.index('BUILDING_CAVE_OF_ANCESTORS')]+=630
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				iValue[sProd.index('BUILDINGCLASS_SIEGE_WORKSHOP')]=-10000			
 				if ((pCity.getPopulation()>iMinCitySize+3) or (pCity.foodDifference(False)<1)):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:		# 10 is GROUPFLAG_CONQUEST
@@ -1751,7 +1753,7 @@ class CvGameUtils:
 			if pCity.isCapital():
 				if eTeam.isHasTech(gc.getInfoTypeForString('TECH_FESTIVALS')):
 					iValue[sProd.index('UNITCLASS_LOKI')]+=12000			
-			if pPlayer.isConquestMode():
+			if bConquestMode:
 				if ((pCity.getPopulation()>iMinCitySize) or (pCity.foodDifference(False)<1)):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -1797,7 +1799,7 @@ class CvGameUtils:
 			iValue[sProd.index('BUILDINGCLASS_TRAINING_YARD')]+=250
 			if pCity.isCapital():
 				iValue[sProd.index('UNITCLASS_DONAL')]+=12000	
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>iMinCitySize or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -1844,7 +1846,7 @@ class CvGameUtils:
 			iValue[sProd.index('BUILDINGCLASS_COURTHOUSE')]+=800			
 			if pCity.isCapital():
 				iValue[sProd.index('UNITCLASS_LOSHA')]+=12000				
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>iMinCitySize or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -1889,7 +1891,7 @@ class CvGameUtils:
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_CLAN_OF_EMBERS'):
 			iValue[sProd.index('BUILDINGCLASS_TRAINING_YARD')]+=250
 			iValue[sProd.index('BUILDING_WARRENS')]+=70*pCity.getCurrentProductionDifference(False,False)+iSpecialization						
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize-3) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -1932,7 +1934,7 @@ class CvGameUtils:
 
 #Doviello
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_DOVIELLO'):
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize-4) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -1984,7 +1986,7 @@ class CvGameUtils:
 			
 			iValue[sProd.index('BUILDING_RELIQUARY')]+=20*pCity.getCurrentProductionDifference(False,False)			
 			iValue[sProd.index('BUILDING_CHANCEL_OF_GUARDIANS')]+=20*pCity.getCurrentProductionDifference(False,False)
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize+3) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2029,7 +2031,7 @@ class CvGameUtils:
 			iValue[sProd.index('BUILDING_ADVENTURERS_GUILD')]+=700			
 			iValue[sProd.index('BUILDINGCLASS_TAVERN')]+=30*pCity.getPopulation()
 			iValue[sProd.index('BUILDINGCLASS_INFIRMARY')]+=200*pPlayer.getNumCities()/(1+pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_INFIRMARY'))+15*pCity.getPopulation())
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize+2) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2071,7 +2073,7 @@ class CvGameUtils:
 #Hippus
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_HIPPUS'):
 			iValue[sProd.index('BUILDINGCLASS_STABLE')]+=250		
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize-2) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2115,7 +2117,7 @@ class CvGameUtils:
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_ILLIANS'):
 			iValue[sProd.index('BUILDINGCLASS_TRAINING_YARD')]+=100		
 			iValue[sProd.index('BUILDINGCLASS_PAGAN_TEMPLE')]+=20*pCity.getCurrentProductionDifference(False,False)+20*pCity.getPopulation()
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize-2) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2164,7 +2166,7 @@ class CvGameUtils:
 			if pCity.isCapital():
 				iValue[sProd.index('BUILDINGCLASS_BREWERY')]+=250
 			iValue[sProd.index('BUILDINGCLASS_FORGE')]+=400	
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2213,7 +2215,7 @@ class CvGameUtils:
 			if pPlayer.getNumAvailableBonuses(gc.getInfoTypeForString('BONUS_JEWELS'))==0:
 				iValue[sProd.index('BUILDING_JEWELER')]+=300
 			iValue[sProd.index('BUILDING_JEWELER')]+=200+30*pCity.getPopulation()+30*pCity.getCurrentProductionDifference(False,False)
-			if pPlayer.isConquestMode():
+			if bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2261,7 +2263,7 @@ class CvGameUtils:
 				iValue[sProd.index('BUILDINGCLASS_HERON_THRONE')]+=200
 			if pPlayer.getUnitClassCountPlusMaking(gc.getInfoTypeForString('UNITCLASS_WORKBOAT'))<1:
 				iValue[sProd.index('UNITCLASS_WORKBOAT')]+=1500		
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2304,7 +2306,7 @@ class CvGameUtils:
 #Ljo
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_LJOSALFAR'):
 			iValue[sProd.index('BUILDINGCLASS_ARCHERY_RANGE')]+=250		
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize-4) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2350,7 +2352,7 @@ class CvGameUtils:
 			iValue[sProd.index('BUILDING_BLASTING_WORKSHOP')]+=400+20*pCity.getCurrentProductionDifference(False,False)		
 			iValue[sProd.index('BUILDING_PALLENS_ENGINE')]+=200+20*pCity.getCurrentProductionDifference(False,False)		
 			iValue[sProd.index('BUILDING_ADULARIA_CHAMBER')]+=200+20*pCity.getCurrentProductionDifference(False,False)					
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize-4) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2398,7 +2400,7 @@ class CvGameUtils:
 			iValue[sProd.index('BUILDING_CITADEL_OF_LIGHT')]+=200+20*pCity.getCurrentProductionDifference(False,False)
 			iValue[sProd.index('BUILDINGCLASS_PAGAN_TEMPLE')]+=100
 			iValue[sProd.index('BUILDINGCLASS_ARCHERY_RANGE')]+=250		
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2446,7 +2448,7 @@ class CvGameUtils:
 				iValue[sProd.index('BUILDINGCLASS_CATACOMB_LIBRALUS')]=3000											
 			iValue[sProd.index('BUILDING_PLANAR_GATE')]+=-400*30*pCity.getCurrentProductionDifference(False,False)
 			iValue[sProd.index('BUILDINGCLASS_PROPHECY_OF_RAGNAROK')]=2000			
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize-6) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2491,7 +2493,7 @@ class CvGameUtils:
 #Sidar
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_SIDAR'):
 			iValue[sProd.index('BUILDINGCLASS_HUNTING_LODGE')]+=200
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2534,7 +2536,7 @@ class CvGameUtils:
 #Svartalfar
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_SVARTALFAR'):
 			iValue[sProd.index('BUILDINGCLASS_HUNTING_LODGE')]+=250
-			if	pPlayer.isConquestMode():
+			if	bConquestMode:
 				if pCity.getPopulation()>(iMinCitySize) or (pCity.foodDifference(False)<1):
 					if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
 						totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
@@ -2680,10 +2682,10 @@ class CvGameUtils:
 		iValue[sProd.index('BUILDINGCLASS_FORGE')]+=60*pCity.getCurrentProductionDifference(False,False)+iSpecialization		
 		if pCity.getCurrentProductionDifference(False,False)>15:		
 			iValue[sProd.index('BUILDINGCLASS_FORGE')]+=2000
-			if pPlayer.isConquestMode():
+			if bConquestMode:
 				iValue[sProd.index('BUILDINGCLASS_FORGE')]+=10000				
 			iValue[sProd.index('BUILDING_COMMAND_POST')]+=250+15*pCity.getCurrentProductionDifference(False,False)				
-			if pPlayer.isConquestMode():			
+			if bConquestMode:			
 				iValue[sProd.index('BUILDING_COMMAND_POST')]+=10000
 			
 #Defense Buildings
@@ -2694,7 +2696,7 @@ class CvGameUtils:
 #Wonders and Rituals
 		iwondermod=2000
 		iconquestmod=0
-		if	(pPlayer.isConquestMode() and (pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif)):
+		if	(bConquestMode and (pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif)):
 			iconquestmod=-2000
 
 		if (pPlayer.getNumCities()>3):
@@ -2785,7 +2787,7 @@ class CvGameUtils:
 				iValue[sProd.index('PROJECT_NATURES_REVOLT')]+=10000
 			
 			if gc.getLeaderHeadInfo(pPlayer.getLeaderType()).isReligionVictory():			
-				if pPlayer.getStateReligion()==pPlayer.getFavoriteReligion() and pPlayer.isConquestMode():
+				if pPlayer.getStateReligion()==pPlayer.getFavoriteReligion() and bConquestMode:
 					iValue[sProd.index('PROJECT_PURGE_THE_UNFAITHFUL')]=17000									
 
 			if pPlayer.getNumCities()>3:			
@@ -2830,7 +2832,7 @@ class CvGameUtils:
 
 #Culture Victory
 		bCultureImportant=false		
-		if ((gc.getLeaderHeadInfo(pPlayer.getLeaderType()).isCultureVictory() and pPlayer.isConquestMode()) and pCity.findCommerceRateRank(CommerceTypes.COMMERCE_CULTURE)<6):
+		if ((gc.getLeaderHeadInfo(pPlayer.getLeaderType()).isCultureVictory() and bConquestMode) and pCity.findCommerceRateRank(CommerceTypes.COMMERCE_CULTURE)<6):
 			bCultureImportant=true
 		if pCity.calculateCulturePercent(ePlayer)<65:
 			bCultureImportant=true
@@ -2929,7 +2931,7 @@ class CvGameUtils:
 #		CyInterface().addMessage(0,true,25,"This is City %s: Our best Building is (%s), Value (%s). Threshold is (%s)!" %(pCity.getName(),sProd[iBestBuilding],iValue[iBestBuilding],iBuildingthres),'',0,'',ColorTypes(11), pPlot.getX(), pPlot.getY(), True,True)
 
 
-#		if	pPlayer.isConquestMode():
+#		if	bConquestMode:
 #			CyInterface().addMessage(0,true,25,"This is City %s: Our best Building is (%s), Value (%s). Threshold is (%s)!" %(pCity.getName(),sProd[iBestBuilding],iValue[iBestBuilding],iBuildingthres),'',0,'',ColorTypes(11), pPlot.getX(), pPlot.getY(), True,True)
 #		if civtype == gc.getInfoTypeForString('CIVILIZATION_AMURITES'):
 #			CyInterface().addMessage(0,true,25,"This is City %s: Our best Building is (%s), Value (%s). Threshold is (%s)!" %(pCity.getName(),sProd[iBestBuilding],iValue[iBestBuilding],iBuildingthres),'',0,'',ColorTypes(11), pPlot.getX(), pPlot.getY(), True,True)
