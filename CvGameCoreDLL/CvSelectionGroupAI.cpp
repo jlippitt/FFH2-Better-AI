@@ -640,6 +640,7 @@ bool CvSelectionGroupAI::AI_isDeclareWar(const CvPlot* pPlot)
 /**						                                            							**/
 /*************************************************************************************************/
 			case UNITAI_WARWIZARD:
+            case UNITAI_HERO:
 /*************************************************************************************************/
 /**	END	                                        												**/
 /*************************************************************************************************/
@@ -681,7 +682,6 @@ bool CvSelectionGroupAI::AI_isDeclareWar(const CvPlot* pPlot)
 			case UNITAI_TERRAFORMER:
             case UNITAI_MANA_UPGRADE:
             case UNITAI_BARBSMASHER:
-            case UNITAI_HERO:
             case UNITAI_FEASTING:
             case UNITAI_MEDIC:
 /*************************************************************************************************/

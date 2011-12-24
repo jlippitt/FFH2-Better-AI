@@ -12020,15 +12020,15 @@ bool CvUnitAI::AI_targetCity(int iFlags)
 									iValue = GET_PLAYER(getOwnerINLINE()).AI_targetCityValue(pLoopCity, true, true);
 								}
 
-							iValue *= 1000;
+                                iValue *= 1000;
 
-							if ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
-							{
-								if (pLoopCity->calculateCulturePercent(getOwnerINLINE()) < 75)
-								{
-									iValue /= 2;
-								}
-							}
+                                if ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
+                                {
+                                    if (pLoopCity->calculateCulturePercent(getOwnerINLINE()) < 75)
+                                    {
+                                        iValue /= 2;
+                                    }
+                                }
 
 								// If stack has poor bombard, direct towards lower defense cities
 								iPathTurns += std::min(16, getGroup()->getBombardTurns(pLoopCity))/2;
@@ -12052,6 +12052,20 @@ bool CvUnitAI::AI_targetCity(int iFlags)
 	{
 		iBestValue = 0;
 		pBestPlot = NULL;
+
+        // Better AI: Logging
+        {
+            char szLog[1024];
+
+            sprintf(szLog,
+                    "%d - %S targeting %S\n",
+                    GC.getGameINLINE().getGameTurn(),
+                    GET_PLAYER(getOwnerINLINE()).getName(),
+                    pBestCity->getName().GetCString());
+
+            gDLL->logMsg("war.log", szLog);
+        }
+        // End better AI
 
 		if (0 == (iFlags & MOVE_THROUGH_ENEMY))
 		{
@@ -18205,7 +18219,10 @@ int CvUnitAI::AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold)
 
 int CvUnitAI::AI_stackOfDoomExtra()
 {
-	return ((AI_getBirthmark() % (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra())) + 4);
+    // Better AI: TODO - Need some decent logic for this
+	//return ((AI_getBirthmark() % (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra())) + 4);
+    return 10;
+    // End Better AI
 }
 
 bool CvUnitAI::AI_stackAttackCity(int iRange, int iPowerThreshold, bool bFollow)

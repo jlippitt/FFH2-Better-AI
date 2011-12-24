@@ -543,8 +543,8 @@ class CvEventManager:
 			cf.doTurnLuchuirp(iPlayer)
 
 		# Better AI: Doviello
-		#if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_DOVIELLO'):
-		#	pPlayer.startConquestMode()
+		if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_DOVIELLO'):
+			pPlayer.startConquestMode()
 		# End Better AI
 
 		if pPlayer.hasTrait(gc.getInfoTypeForString('TRAIT_INSANE')):
