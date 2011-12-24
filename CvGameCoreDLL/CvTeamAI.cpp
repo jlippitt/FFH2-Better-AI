@@ -14,9 +14,6 @@
 #include "FProfiler.h"
 #include "CyArgsList.h"
 #include "CvDLLPythonIFaceBase.h"
-// Better AI
-#include "CvGameTextMgr.h"
-// End Better AI
 
 // statics
 
@@ -2650,17 +2647,52 @@ void CvTeamAI::AI_setWarPlan(TeamTypes eIndex, WarPlanTypes eNewValue, bool bWar
 			m_aeWarPlan[eIndex] = eNewValue;
 
             // Better AI: Logging
+            if (GC.getGameINLINE().getGameTurn() > 0)
             {
                 char szLog[1024];
 
-                CvWStringBuffer szWarplanString;
-                CvGameTextMgr::GetInstance().getWarplanString(szWarplanString, eNewValue);
+                CvWString szWarplanString;
+
+                switch (eNewValue)
+                {
+                case WARPLAN_ATTACKED:
+                    szWarplanString = "WARPLAN_ATTACKED";
+                    break;
+
+                case WARPLAN_ATTACKED_RECENT:
+                    szWarplanString = "WARPLAN_ATTACKED_RECENT";
+                    break;
+
+                case WARPLAN_TOTAL:
+                    szWarplanString = "WARPLAN_TOTAL";
+                    break;
+
+                case WARPLAN_PREPARING_TOTAL:
+                    szWarplanString = "WARPLAN_PREPARING_TOTAL";
+                    break;
+
+                case WARPLAN_LIMITED:
+                    szWarplanString = "WARPLAN_LIMITED";
+                    break;
+
+                case WARPLAN_PREPARING_LIMITED:
+                    szWarplanString = "WARPLAN_PREPARING_LIMITED";
+                    break;
+
+                case WARPLAN_DOGPILE:
+                    szWarplanString = "WARPLAN_DOGPILE";
+                    break;
+
+                case NO_WARPLAN:
+                    szWarplanString = "NO_WARPLAN";
+                    break;
+                }
 
                 sprintf(szLog,
                         "%d - %S %S vs. %S\n",
                         GC.getGameINLINE().getGameTurn(),
                         GET_PLAYER(getLeaderID()).getName(),
-                        szWarplanString.getCString(),
+                        szWarplanString.GetCString(),
                         GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getName());
 
                 gDLL->logMsg("war.log", szLog);
