@@ -3260,18 +3260,17 @@ void CvTeamAI::AI_doWar()
                     char szLog[1024];
 
                     sprintf(szLog,
-                            "%d - %S (%d) preparing vs. %S (%d) [%d, %d]\n",
+                            "%d - %S (%d) preparing vs. %S (%d) [%d]\n",
                             GC.getGameINLINE().getGameTurn(),
                             GET_PLAYER(getLeaderID()).getName(),
                             iOurPower,
                             GET_PLAYER(kTeam.getLeaderID()).getName(),
                             iTheirPower,
-                            AI_maxWarNearbyPowerRatio(),
-                            AI_maxWarDistantPowerRatio());
+                            AI_maxWarNearbyPowerRatio());
 
                     gDLL->logMsg("war.log", szLog);
 
-                    if (iTheirPower < (iOurPower * AI_maxWarNearbyPowerRatio() / 100))
+                    if (iOurPower >= (iTheirPower * AI_maxWarNearbyPowerRatio() / 100))
                     {
                         AI_setWarPlan((TeamTypes)iI, WARPLAN_TOTAL);
                     }
@@ -3376,7 +3375,6 @@ void CvTeamAI::AI_doWar()
         TeamTypes eBestTeam = NO_TEAM;
         int iBestValue = 0;
         int iBestPower = 0;
-        bool bBestNearby = false;
 
         for (int iI = 0; iI < MAX_CIV_TEAMS; ++iI)
         {
@@ -3472,7 +3470,6 @@ void CvTeamAI::AI_doWar()
                 eBestTeam = (TeamTypes)iI;
                 iBestValue = iValue;
                 iBestPower = iTheirPower;
-                bBestNearby = bNearby;
             }
         }
 
@@ -3482,7 +3479,7 @@ void CvTeamAI::AI_doWar()
 
             int iTheirPower = kTeam.getDefensivePower();
 
-            if (iTheirPower < (iOurPower * (bBestNearby ? AI_maxWarNearbyPowerRatio() : AI_maxWarDistantPowerRatio()) / 100))
+            if (iOurPower >= (iTheirPower * AI_maxWarNearbyPowerRatio() / 100))
             {
                 AI_setWarPlan(eBestTeam, WARPLAN_TOTAL);
             }
