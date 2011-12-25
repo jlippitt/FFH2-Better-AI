@@ -18220,8 +18220,12 @@ int CvUnitAI::AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold)
 int CvUnitAI::AI_stackOfDoomExtra()
 {
     // Better AI: TODO - Need some decent logic for this
-	//return ((AI_getBirthmark() % (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra())) + 4);
-    return 10;
+    int iStackSize = 5;
+
+    iStackSize *= GC.getGameINLINE().getGameTurn();
+    iStackSize /= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent();
+
+    return std::max(10, iStackSize);
     // End Better AI
 }
 

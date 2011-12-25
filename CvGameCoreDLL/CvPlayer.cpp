@@ -23434,6 +23434,20 @@ bool CvPlayer::isConquestMode() const
 
 void CvPlayer::startConquestMode()
 {
+    // Better AI: Logging
+    if (!m_bConquestMode)
+    {
+        char szLog[1024];
+
+        sprintf(szLog,
+                "%d - %S entered conquest mode\n",
+                GC.getGameINLINE().getGameTurn(),
+                getName());
+
+        gDLL->logMsg("war.log", szLog);
+    }
+    // End Better AI
+
     m_bConquestMode = true;
 }
 
