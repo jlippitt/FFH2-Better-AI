@@ -1298,6 +1298,7 @@ def spellFormWolfPack(caster):
 		pPlayer = gc.getPlayer(caster.getOwner())
 		newUnit = pPlayer.initUnit(gc.getInfoTypeForString('UNIT_WOLF_PACK'), caster.getX(), caster.getY(), UnitAITypes.NO_UNITAI, DirectionTypes.DIRECTION_SOUTH)
 		newUnit.setExperience(caster.getExperience() + pWolf2.getExperience(), -1)
+		newUnit.setUnitAIType(caster.getUnitAIType())
 		caster.kill(True, 0)
 		pWolf2.kill(True, 0)
 
@@ -3304,12 +3305,16 @@ def spellWildHunt(caster):
 	iWolf = gc.getInfoTypeForString('UNIT_WOLF')
 	pPlayer = gc.getPlayer(caster.getOwner())
 	py = PyPlayer(caster.getOwner())
+	eUnitAI = UnitAITypes.UNITAI_COUNTER
+	if gc.getTeam(caster.getTeam()).getChosenWarCount(True) > 0:
+		eUnitAI = UnitAITypes.UNITAI_ATTACK_CITY
 	for pUnit in py.getUnitList():
 		if pUnit.baseCombatStr() > 0:
-			newUnit = pPlayer.initUnit(iWolf, pUnit.getX(), pUnit.getY(), UnitAITypes.UNITAI_ATTACK_CITY, DirectionTypes.DIRECTION_SOUTH)
+			newUnit = pPlayer.initUnit(iWolf, pUnit.getX(), pUnit.getY(), UnitAITypes.NO_UNITAI, DirectionTypes.DIRECTION_SOUTH)
 			if pUnit.baseCombatStr() > 3:
 				i = (pUnit.baseCombatStr() - 2) / 2
 				newUnit.setBaseCombatStr(2 + i)
+			newUnit.setUnitAIType(eUnitAI)
 
 def spellWonder(caster):
 	iCount = CyGame().getSorenRandNum(3, "Wonder") + 3
