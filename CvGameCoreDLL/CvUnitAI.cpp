@@ -18225,6 +18225,9 @@ int CvUnitAI::AI_stackOfDoomExtra()
     iStackSize *= GC.getGameINLINE().getGameTurn();
     iStackSize /= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent();
 
+    iStackSize *= 100;
+    iStackSize /= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAITrainPercent();
+
     return std::max(10, iStackSize);
     // End Better AI
 }
@@ -21331,6 +21334,8 @@ void CvUnitAI::ConquestMove()
 			bHuntBarbs = true;
 		}
 	}
+    // Better AI: Ignore for now
+    /*
 	bool bReadyToAttack = ((getGroup()->getNumUnits() >= (bHuntBarbs ? 3 : AI_stackOfDoomExtra())));
 	if (plot()->getOwnerINLINE() == getOwnerINLINE())
 	{
@@ -21354,6 +21359,8 @@ void CvUnitAI::ConquestMove()
 			}
 		}
 	}
+    */
+    // End Better AI
 
 	if (collateralDamage() > 0)
 	{
@@ -21384,11 +21391,12 @@ void CvUnitAI::ConquestMove()
         }
     }
 
+    // Better AI: Use new attack method
 	//XXX more sophisticated logic for attacking is long overdue here
 //	if ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) ||
 //		  (atWar(getTeam(), plot()->getTeam())) ||
 //			((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) && (getGroup()->getNumUnits() >= AI_stackOfDoomExtra())))
-	if (bReadyToAttack)
+	/*if (bReadyToAttack)
 	{
 		if (bHuntBarbs && AI_targetBarbCity())
 		{
@@ -21414,7 +21422,13 @@ void CvUnitAI::ConquestMove()
 				}
 			}
 		}
-	}
+	}*/
+
+    if (AI_attackTargets(bLandWar, bHuntBarbs))
+    {
+        return;
+    }
+    // End Better AI
 
 	if (AI_moveToStagingCity())
 	{
@@ -22727,3 +22741,74 @@ bool CvUnitAI::AI_buildPirateCove()
 /**	END	                                        												**/
 /*************************************************************************************************/
 
+// Better AI: Attack target logic
+bool CvUnitAI::AI_attackTargets(bool bLandWar, bool bHuntBarbs)
+{
+    if (bLandWar)
+    {
+        CvCity* pTargetCity = area()->getTargetCity(getOwnerINLINE());
+
+        // Can we see the target city?
+        if (pTargetCity)
+        {
+            CvPlot* pTargetPlot = pTargetCity->plot();
+
+            if (pTargetPlot->isVisible(getTeam(), false))
+            {
+                // Directly compare stack strengths (TODO: Use proper power rating)
+                int iOurPower = getGroup()->AI_GroupPower(plot(), false);
+
+                int iTheirPower = GET_PLAYER(pTargetCity->getOwnerINLINE()).
+                    AI_getOurPlotStrength(pTargetCity->plot(), 2, true, false);
+
+                if ((iOurPower * 2) >= (iTheirPower * 3))
+                {
+                    if (AI_targetCity())
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Compare against an arbitrary number, then
+        if (getGroup()->getNumUnits() >= AI_stackOfDoomExtra())
+        {
+            if (AI_targetCity())
+            {
+                return true;
+            }
+
+            // If we had a target, but didn't attack, we're probably blocked
+            if (pTargetCity)
+            {
+                if (AI_solveBlockageProblem(pTargetCity->plot(), GET_TEAM(getTeam()).getAtWarCount(true) == 0))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    if (!bLandWar && plot()->getOwnerINLINE() == getOwnerINLINE())
+    {
+        if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_SAFE_TERRITORY, 4))
+        {
+            return true;
+        }
+    }
+
+    if (bHuntBarbs)
+    {
+        if (getGroup()->getNumUnits() >= (AI_stackOfDoomExtra() / 2))
+        {
+            if (AI_targetBarbCity())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+// End Better AI

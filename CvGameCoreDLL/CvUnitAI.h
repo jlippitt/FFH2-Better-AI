@@ -333,6 +333,10 @@ protected:
 /**	END	                                        												**/
 /*************************************************************************************************/
 
+    // Better AI: Attack target logic
+    bool AI_attackTargets(bool bLandWar, bool bHuntBarbs);
+    // End better AI
+
 	// added so under cheat mode we can call protected functions for testing
 	friend class CvGameTextMgr;
 
