@@ -2108,7 +2108,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 			{
 				iBadTile += 2;
 			}
-			else if (!(pLoopPlot->isFreshWater()) && !(pLoopPlot->isHills()))
+			else if (!isIgnoreFood() && !(pLoopPlot->isFreshWater()) && !(pLoopPlot->isHills()))
 			{
 
 //FfH: Modified by Kael 09/19/2009 (made the AI a little more picky about where to place cities)
@@ -2169,7 +2169,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 							if (eBonus != NO_BONUS)
 							{
 								if ((getNumTradeableBonuses(eBonus) == 0) || (AI_bonusVal(eBonus) > 10)
-									|| (GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0))
+									|| (!isIgnoreFood() && GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0))
 								{
 									bHasGoodBonus = true;
 									break;
@@ -2302,6 +2302,13 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 			for (int iYieldType = 0; iYieldType < NUM_YIELD_TYPES; ++iYieldType)
 			{
 				YieldTypes eYield = (YieldTypes)iYieldType;
+
+                if (iYieldType == YIELD_FOOD && isIgnoreFood())
+                {
+                    aiYield[eYield] = 0;
+                    continue;
+                }
+
 				aiYield[eYield] = pLoopPlot->getYield(eYield);
 
 				if (iI == CITY_HOME_PLOT)
@@ -2361,7 +2368,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 					iTempValue *= 2;
 				}
 			}
-			else if (aiYield[YIELD_FOOD] == GC.getFOOD_CONSUMPTION_PER_POPULATION() - 1)
+			else if (isIgnoreFood() || aiYield[YIELD_FOOD] == GC.getFOOD_CONSUMPTION_PER_POPULATION() - 1)
 			{
 				iTempValue += aiYield[YIELD_FOOD] * 25;
 				iTempValue += aiYield[YIELD_PRODUCTION] * 25;
@@ -2379,7 +2386,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 				if (aiYield[YIELD_COMMERCE] > 1)
 				{
 					iTempValue += bIsCoastal ? 30 : -20;
-					if (bIsCoastal && (aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
+					if (bIsCoastal && !isIgnoreFood() && (aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
 					{
 						iSpecialFoodPlus += 1;
 					}
@@ -2469,15 +2476,19 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 					{
 						if (eBonusImprovement != NO_IMPROVEMENT)
 						{
-							int iSpecialFoodTemp;
-							iSpecialFoodTemp = pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD);
+                            if (!isIgnoreFood())
+                            {
+                                int iSpecialFoodTemp;
+                                iSpecialFoodTemp = pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD);
 
-							iSpecialFood += iSpecialFoodTemp;
+                                iSpecialFood += iSpecialFoodTemp;
 
-							iSpecialFoodTemp -= GC.getFOOD_CONSUMPTION_PER_POPULATION();
+                                iSpecialFoodTemp -= GC.getFOOD_CONSUMPTION_PER_POPULATION();
 
-							iSpecialFoodPlus += std::max(0,iSpecialFoodTemp);
-							iSpecialFoodMinus -= std::min(0,iSpecialFoodTemp);
+                                iSpecialFoodPlus += std::max(0,iSpecialFoodTemp);
+                                iSpecialFoodMinus -= std::min(0,iSpecialFoodTemp);
+                            }
+
 							iSpecialProduction += pLoopPlot->calculateBestNatureYield(YIELD_PRODUCTION, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
 							iSpecialCommerce += pLoopPlot->calculateBestNatureYield(YIELD_COMMERCE, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
 						}
@@ -2487,7 +2498,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 /**	grassland farms are really good        														**/
 /**						                                            							**/
 /*************************************************************************************************/
-                        if (pLoopPlot->isFreshWater())
+                        if (pLoopPlot->isFreshWater() && !isIgnoreFood())
                         {
                             if (GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_FOOD) > 1) //Grasslands
                             {
@@ -2507,7 +2518,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 
 						if (eFeature != NO_FEATURE)
 						{
-							if (GC.getFeatureInfo(eFeature).getYieldChange(YIELD_FOOD) < 0)
+							if (!isIgnoreFood() && GC.getFeatureInfo(eFeature).getYieldChange(YIELD_FOOD) < 0)
 							{
 								iResourceValue -= 30;
 							}
@@ -2551,7 +2562,11 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 		}
 	}
 
-	iResourceValue += iSpecialFood * 50;
+    if (!isIgnoreFood())
+    {
+        iResourceValue += iSpecialFood * 50;
+    }
+
 	iResourceValue += iSpecialProduction * 50;
 	iResourceValue += iSpecialCommerce * 50;
     if (bStartingLoc)
@@ -2575,7 +2590,10 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 		return 0;
 	}
 
-	iValue += (iHealth / 5);
+    if (!isIgnoreFood())
+    {
+        iValue += (iHealth / 5);
+    }
 
 	if (bIsCoastal)
 	{
@@ -2617,7 +2635,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 		iValue += 40;
 	}
 
-	if (pPlot->isFreshWater())
+	if (!isIgnoreFood() && pPlot->isFreshWater())
 	{
 		iValue += 40;
 		iValue += (GC.getDefineINT("FRESH_WATER_HEALTH_CHANGE") * 30);
@@ -2641,15 +2659,18 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 						if (plotDistance(iX, iY, pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= iRange)
 						{
 						    iTempValue = 0;
-							iTempValue += (pLoopPlot->getYield(YIELD_FOOD) * 15);
+                            if (!isIgnoreFood())
+                            {
+                                iTempValue += (pLoopPlot->getYield(YIELD_FOOD) * 15);
+                            }
 							iTempValue += (pLoopPlot->getYield(YIELD_PRODUCTION) * 11);
 							iTempValue += (pLoopPlot->getYield(YIELD_COMMERCE) * 5);
 							iValue += iTempValue;
-							if (iTempValue < 21)
+							if (iTempValue < (isIgnoreFood() ? 10 : 21))
 							{
 
 								iGreaterBadTile += 2;
-								if (pLoopPlot->getFeatureType() != NO_FEATURE)
+								if (pLoopPlot->getFeatureType() != NO_FEATURE && !isIgnoreFood())
 								{
 							    	if (pLoopPlot->calculateBestNatureYield(YIELD_FOOD,getTeam()) > 1)
 							    	{
@@ -2688,7 +2709,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 		        if (pLoopPlot->isWater())
 		        {
 		            iWaterCount ++;
-		            if (pLoopPlot->getYield(YIELD_FOOD) <= 1)
+		            if (!isIgnoreFood() && pLoopPlot->getYield(YIELD_FOOD) <= 1)
 		            {
 		                iWaterCount++;
 					}
@@ -2881,7 +2902,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
 		}
 	}
 
-	if (!bStartingLoc)
+	if (!bStartingLoc && !isIgnoreFood())
 	{
 		int iFoodSurplus = std::max(0, iSpecialFoodPlus - iSpecialFoodMinus);
 		int iFoodDeficit = std::max(0, iSpecialFoodMinus - iSpecialFoodPlus);
@@ -7735,7 +7756,11 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus) const
 		if (!GET_TEAM(getTeam()).isBonusObsolete(eBonus))
 		{
 			iValue += (GC.getBonusInfo(eBonus).getHappiness() * 100);
-			iValue += (GC.getBonusInfo(eBonus).getHealth() * 100);
+            
+            if (!isIgnoreFood())
+            {
+                iValue += (GC.getBonusInfo(eBonus).getHealth() * 100);
+            }
 
 			CvTeam& kTeam = GET_TEAM(getTeam());
 
