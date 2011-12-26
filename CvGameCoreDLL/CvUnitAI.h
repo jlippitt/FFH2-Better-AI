@@ -87,7 +87,6 @@ public:
 	void AI_mageCast();
     void AI_terraformerMove();
     void AI_upgrademanaMove();
-    void AI_manesMove();
 
     bool isSummoner();
     void AI_SummonCast();

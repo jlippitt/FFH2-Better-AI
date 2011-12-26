@@ -202,9 +202,5 @@
 			<Type>UNITAI_WARWIZARD</Type>
 			<Description>UNITAI_WARWIZARD</Description>
 		</UnitAIInfo>		
-		<UnitAIInfo>
-			<Type>UNITAI_MANES</Type>
-			<Description>UNITAI_MANES</Description>
-		</UnitAIInfo>		
 	</UnitAIInfos>
 </Civ4UnitAIInfos>

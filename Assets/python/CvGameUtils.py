@@ -875,6 +875,9 @@ class CvGameUtils:
 				iTech = gc.getInfoTypeForString('TECH_SANITATION')							
 			if not eTeam.isHasTech(gc.getInfoTypeForString('TECH_TRADE')):		
 				iTech = gc.getInfoTypeForString('TECH_TRADE')							
+				if pPlayer.countNumCoastalCities() == 0:
+					# Force via Horseback Riding rather than wasting beakers on Sailing
+					iTech = gc.getInfoTypeForString('TECH_HORSEBACK_RIDING')
 									
 					
 #----------------------------			
@@ -979,13 +982,18 @@ class CvGameUtils:
 				if eTeam.isHasTech(gc.getInfoTypeForString('TECH_MESSAGE_FROM_THE_DEEP')):
 					countreli+=1
 				if countreli==0:
+					game = gc.getGame()
+					bHasReligion = pPlayer.countTotalHasReligion() > 0
 
 					if pPlayer.getAlignment() == gc.getInfoTypeForString('ALIGNMENT_GOOD'):
-						iTech = gc.getInfoTypeForString('TECH_WAY_OF_THE_EARTHMOTHER')
+						if not bHasReligion or not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_RUNES_OF_KILMORPH')):
+							iTech = gc.getInfoTypeForString('TECH_WAY_OF_THE_EARTHMOTHER')
 					elif pPlayer.getAlignment() == gc.getInfoTypeForString('ALIGNMENT_NEUTRAL'):
-						iTech = gc.getInfoTypeForString('TECH_WAY_OF_THE_FORESTS')
+						if not bHasReligion or not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_WAY_OF_THE_FORESTS')):
+							iTech = gc.getInfoTypeForString('TECH_WAY_OF_THE_FORESTS')
 					elif pPlayer.getAlignment() == gc.getInfoTypeForString('ALIGNMENT_EVIL'):
-						iTech = gc.getInfoTypeForString('TECH_MESSAGE_FROM_THE_DEEP')
+						if not bHasReligion or not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_OCTOPUS_OVERLORDS')):
+							iTech = gc.getInfoTypeForString('TECH_MESSAGE_FROM_THE_DEEP')
 						
 					if iFavRel!=ReligionTypes.NO_RELIGION:
 						if iFavRel== gc.getInfoTypeForString('RELIGION_FELLOWSHIP_OF_LEAVES'):
@@ -996,9 +1004,11 @@ class CvGameUtils:
 							iTech = gc.getInfoTypeForString('TECH_MESSAGE_FROM_THE_DEEP')					
 
 					if gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getFavoriteEarlyReligion()!=ReligionTypes.NO_RELIGION:
-						newtech = gc.getReligionInfo(gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getFavoriteEarlyReligion()).getReligionTech1()
-						if eTeam.isHasTech(newtech) == False:
-							iTech = newtech
+						iFavEarlyRel = gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getFavoriteEarlyReligion()
+						if not bHasReligion or not game.isReligionFounded(iFavEarlyRel):
+							newtech = gc.getReligionInfo(iFavEarlyRel).getReligionTech1()
+							if eTeam.isHasTech(newtech) == False:
+								iTech = newtech
 						
 					if (iCiv == gc.getInfoTypeForString('CIVILIZATION_LJOSALFAR') or iCiv == gc.getInfoTypeForString('CIVILIZATION_SVARTALFAR')):
 						if pPlayer.canResearch(iTech,False):																				
@@ -2167,10 +2177,50 @@ class CvGameUtils:
 						if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_ARCHERY_RANGE'))*5:
 							iValue[sProd.index('BUILDINGCLASS_ARCHERY_RANGE')]=iValue[sProd.index('UNITCLASS_ARCHER')]+10
 							
+#Infernal
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_INFERNAL'):
 			iValue[sProd.index('BUILDINGCLASS_CATACOMB_LIBRALUS')]=-10000								
+			if bConquestMode:
+				if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
+					totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
+					totalmelee=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_AXEMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_CHAMPION'),pCity.area())
+					totalarchers=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_LONGBOWMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ARCHER'),pCity.area())
+					totalrecon=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_HUNTER'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_RANGER'),pCity.area())
+					totalsiege=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_CATAPULT'),pCity.area())
+					totalmounted=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_HORSEMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_HORSE_ARCHER'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_CHARIOT'),pCity.area())
+			
+					totalpriests=0
+					if iReli!=-1:
+						totalpriests=pPlayer.getConquestUnitClassCount(iReli,pCity.area())
+					totalunits=totalmages+totalmelee+totalarchers+totalrecon+totalsiege+totalmounted+totalpriests
+					iValue[sProd.index('UNITCLASS_ADEPT')]+=1200+12*(totalunits-totalmages)
+					iValue[sProd.index('UNITCLASS_ARCHER')]+=1200+10*(totalunits-totalarchers)
+					iValue[sProd.index('UNITCLASS_AXEMAN')]+=1200+16*(totalunits-totalmelee)
+					iValue[sProd.index('UNITCLASS_HUNTER')]+=1200+10*(totalunits-totalrecon)
+					iValue[sProd.index('UNITCLASS_CATAPULT')]+=1200+0*(totalunits-totalsiege)
+					iValue[sProd.index('UNITCLASS_HORSEMAN')]+=1200+12*(totalunits-totalmounted)
+					
+					if totalsiege<5:
+						iValue[sProd.index('UNITCLASS_CATAPULT')]+=2000
+					if totalmages<3:
+						iValue[sProd.index('UNITCLASS_ADEPT')]+=2000						
+					
+					if iReli!=-1:
+						iValue[sProd.index(sReli)]+=1200+10*(totalunits-totalpriests)	
+					iValue[sProd.index('BUILDINGCLASS_MAGE_GUILD')]+=12020							
+					iValue[sProd.index('BUILDINGCLASS_ARCHERY_RANGE')]+=12000																
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_HUNTING_LODGE'))*5:
+						iValue[sProd.index('BUILDINGCLASS_HUNTING_LODGE')]=iValue[sProd.index('UNITCLASS_HUNTER')]+10
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_MAGE_GUILD'))*5:
+						iValue[sProd.index('BUILDINGCLASS_MAGE_GUILD')]=iValue[sProd.index('UNITCLASS_ADEPT')]+10			
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_SIEGE_WORKSHOP'))*5:
+						iValue[sProd.index('BUILDINGCLASS_SIEGE_WORKSHOP')]=iValue[sProd.index('UNITCLASS_CATAPULT')]+10
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_STABLE'))*5:
+						iValue[sProd.index('BUILDINGCLASS_STABLE')]=iValue[sProd.index('UNITCLASS_HORSEMAN')]+10				
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_ARCHERY_RANGE'))*5:
+						iValue[sProd.index('BUILDINGCLASS_ARCHERY_RANGE')]=iValue[sProd.index('UNITCLASS_ARCHER')]+10				
 							
-#Kahzad
+#Khazad
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_KHAZAD'):
 			iValue[sProd.index('BUILDINGCLASS_TRAINING_YARD')]+=250
 			if pCity.isCapital():
@@ -2450,6 +2500,48 @@ class CvGameUtils:
 						if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_ARCHERY_RANGE'))*5:
 							iValue[sProd.index('BUILDINGCLASS_ARCHERY_RANGE')]=iValue[sProd.index('UNITCLASS_ARCHER')]+10				
 			
+#Mercurians
+		if civtype == gc.getInfoTypeForString('CIVILIZATION_MERCURIANS'):
+			if bConquestMode:
+				if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
+					totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
+					totalmelee=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_AXEMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_CHAMPION'),pCity.area())
+					totalarchers=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_LONGBOWMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ARCHER'),pCity.area())
+					totalrecon=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_HUNTER'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_RANGER'),pCity.area())
+					totalsiege=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_CATAPULT'),pCity.area())
+					totalmounted=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_HORSEMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_HORSE_ARCHER'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_CHARIOT'),pCity.area())
+			
+					totalpriests=0
+					if iReli!=-1:
+						totalpriests=pPlayer.getConquestUnitClassCount(iReli,pCity.area())
+					totalunits=totalmages+totalmelee+totalarchers+totalrecon+totalsiege+totalmounted+totalpriests
+					iValue[sProd.index('UNITCLASS_ADEPT')]+=1200+12*(totalunits-totalmages)
+					iValue[sProd.index('UNITCLASS_ARCHER')]+=1200+10*(totalunits-totalarchers)
+					iValue[sProd.index('UNITCLASS_AXEMAN')]+=1200+16*(totalunits-totalmelee)
+					iValue[sProd.index('UNITCLASS_HUNTER')]+=1200+10*(totalunits-totalrecon)
+					iValue[sProd.index('UNITCLASS_CATAPULT')]+=1200+0*(totalunits-totalsiege)
+					iValue[sProd.index('UNITCLASS_HORSEMAN')]+=1200+12*(totalunits-totalmounted)
+					
+					if totalsiege<5:
+						iValue[sProd.index('UNITCLASS_CATAPULT')]+=2000
+					if totalmages<3:
+						iValue[sProd.index('UNITCLASS_ADEPT')]+=2000						
+					
+					if iReli!=-1:
+						iValue[sProd.index(sReli)]+=1200+10*(totalunits-totalpriests)	
+					iValue[sProd.index('BUILDINGCLASS_MAGE_GUILD')]+=12020							
+					iValue[sProd.index('BUILDINGCLASS_ARCHERY_RANGE')]+=12000																
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_HUNTING_LODGE'))*5:
+						iValue[sProd.index('BUILDINGCLASS_HUNTING_LODGE')]=iValue[sProd.index('UNITCLASS_HUNTER')]+10
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_MAGE_GUILD'))*5:
+						iValue[sProd.index('BUILDINGCLASS_MAGE_GUILD')]=iValue[sProd.index('UNITCLASS_ADEPT')]+10			
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_SIEGE_WORKSHOP'))*5:
+						iValue[sProd.index('BUILDINGCLASS_SIEGE_WORKSHOP')]=iValue[sProd.index('UNITCLASS_CATAPULT')]+10
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_STABLE'))*5:
+						iValue[sProd.index('BUILDINGCLASS_STABLE')]=iValue[sProd.index('UNITCLASS_HORSEMAN')]+10				
+					if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_ARCHERY_RANGE'))*5:
+						iValue[sProd.index('BUILDINGCLASS_ARCHERY_RANGE')]=iValue[sProd.index('UNITCLASS_ARCHER')]+10				
+							
 #Sheaim	
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_SHEAIM'):
 			iValue[sProd.index('BUILDINGCLASS_MAGE_GUILD')]+=1000
