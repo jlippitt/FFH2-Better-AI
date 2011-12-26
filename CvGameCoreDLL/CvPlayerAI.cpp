@@ -10646,22 +10646,35 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	//iValue += ((kCivic.isMilitaryFoodProduction()) ? 0 : 0);
 
 //FfH: Added by Kael 01/31/2009
-    if (kCivic.isMilitaryFoodProduction())
+    if (!isIgnoreFood())
     {
-        if (getTotalPopulation() < 30)
+        if (kCivic.isMilitaryFoodProduction())
         {
-            iValue -= (30 - getTotalPopulation()) * 5;
+            if (getTotalPopulation() < 30)
+            {
+                iValue -= (30 - getTotalPopulation()) * 5;
+            }
         }
     }
 //FfH: End Add
 
 	iValue += (getWorldSizeMaxConscript(eCivic) * ((bWarPlan) ? (20 + getNumCities()) : ((8 + getNumCities()) / 2)));
-	iValue += ((kCivic.isNoUnhealthyPopulation()) ? (getTotalPopulation() / 3) : 0);
+
+    if (!isIgnoreFood())
+    {
+        iValue += ((kCivic.isNoUnhealthyPopulation()) ? (getTotalPopulation() / 3) : 0);
+    }
+
 	if (bWarPlan)
 	{
 		iValue += ((kCivic.getExpInBorderModifier() * getNumMilitaryUnits()) / 200);
 	}
-	iValue += ((kCivic.isBuildingOnlyHealthy()) ? (getNumCities() * 3) : 0);
+
+    if (!isIgnoreFood())
+    {
+        iValue += ((kCivic.isBuildingOnlyHealthy()) ? (getNumCities() * 3) : 0);
+    }
+
 	iValue += -((kCivic.getWarWearinessModifier() * getNumCities()) / ((bWarPlan) ? 10 : 50));
 	iValue += (kCivic.getFreeSpecialist() * getNumCities() * 12);
 	iValue += ((kCivic.getTradeRoutes() * std::max(0, iConnectedForeignCities - getNumCities() * 3) * 6) + (getNumCities() * 2));
@@ -10716,10 +10729,13 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 		}
 	}
 
-	if (kCivic.getExtraHealth() != 0)
-	{
-		iValue += (getNumCities() * 6 * AI_getHealthWeight(isCivic(eCivic) ? -kCivic.getExtraHealth() : kCivic.getExtraHealth(), 1)) / 100;
-	}
+    if (!isIgnoreFood())
+    {
+        if (kCivic.getExtraHealth() != 0)
+        {
+            iValue += (getNumCities() * 6 * AI_getHealthWeight(isCivic(eCivic) ? -kCivic.getExtraHealth() : kCivic.getExtraHealth(), 1)) / 100;
+        }
+    }
 
 	iTempValue = kCivic.getHappyPerMilitaryUnit() * 3;
 	if (iTempValue != 0)
@@ -10765,6 +10781,11 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+        if (iI == YIELD_FOOD && isIgnoreFood())
+        {
+            continue;
+        }
+
 		iTempValue = 0;
 
 		iTempValue += ((kCivic.getYieldModifier(iI) * getNumCities()) / 2);
