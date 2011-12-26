@@ -1467,7 +1467,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
 					{
 						if (AI_isFinancialTrouble())
 						{
-							iRazeValue += (70 - 15 * pCity->getPopulation());
+							iRazeValue += std::max(0, 70 - 15 * pCity->getPopulation());
 						}
 					}
 
