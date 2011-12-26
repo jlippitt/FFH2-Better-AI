@@ -12078,20 +12078,6 @@ bool CvUnitAI::AI_targetCity(int iFlags)
 
 				if (pAdjacentPlot != NULL)
 				{
-                    // Better AI: Logging
-                    {
-                        char szLog[1024];
-
-                        sprintf(szLog,
-                                "%d - Plot at %d,%d\n",
-                                GC.getGameINLINE().getGameTurn(),
-                                pAdjacentPlot->getX_INLINE(),
-                                pAdjacentPlot->getY_INLINE());
-
-                        gDLL->logMsg("war.log", szLog);
-                    }
-                    // End better AI
-
 					if (AI_plotValid(pAdjacentPlot))
 					{
 						if (!(pAdjacentPlot->isVisibleEnemyUnit(this)))
@@ -12136,21 +12122,6 @@ bool CvUnitAI::AI_targetCity(int iFlags)
 
 		if (pBestPlot != NULL)
 		{
-            // Better AI: Logging
-            {
-                char szLog[1024];
-
-                sprintf(szLog,
-                        "%d - %S found plot at %d,%d\n",
-                        GC.getGameINLINE().getGameTurn(),
-                        GET_PLAYER(getOwnerINLINE()).getName(),
-                        pBestPlot->getX_INLINE(),
-                        pBestPlot->getY_INLINE());
-
-                gDLL->logMsg("war.log", szLog);
-            }
-            // End better AI
-
 			FAssert(!(pBestCity->at(pBestPlot)) || 0 != (iFlags & MOVE_THROUGH_ENEMY)); // no suicide missions...
 			if (!atPlot(pBestPlot))
 			{
@@ -22794,11 +22765,8 @@ bool CvUnitAI::AI_buildPirateCove()
 // Better AI: Attack target logic
 bool CvUnitAI::AI_attackTargets(bool bLandWar, bool bHuntBarbs)
 {
-    gDLL->logMsg("war.log", "AI_attackTargets\n");
-    
     if (bLandWar)
     {
-        gDLL->logMsg("war.log", "bLandWar\n");
         CvCity* pTargetCity = area()->getTargetCity(getOwnerINLINE());
 
         // Can we see the target city?
@@ -22862,7 +22830,6 @@ bool CvUnitAI::AI_attackTargets(bool bLandWar, bool bHuntBarbs)
         }
     }
 
-    gDLL->logMsg("war.log", "Leaving AI_attackTargets\n");
     return false;
 }
 // End Better AI
