@@ -558,6 +558,9 @@ bool CvUnitAI::AI_update()
 		case UNITAI_TERRAFORMER:
             AI_terraformerMove();
             break;
+        case UNITAI_MANES:
+            AI_manesMove();
+            break;
 /** orig
 		case UNITAI_ATTACK_CITY:
 			AI_attackCityMove();
@@ -21795,6 +21798,20 @@ void CvUnitAI::AI_upgrademanaMove()
     {
         AI_setUnitAIType(UNITAI_TERRAFORMER);
     }
+    getGroup()->pushMission(MISSION_SKIP);
+    return;
+}
+
+void CvUnitAI::AI_manesMove()
+{
+    SpellTypes eAddToCity = (SpellTypes)GC.getInfoTypeForString("SPELL_ADD_TO_CITY");
+
+    if (canCast(eAddToCity, false))
+    {
+        cast(eAddToCity);
+        return;
+    }
+
     getGroup()->pushMission(MISSION_SKIP);
     return;
 }

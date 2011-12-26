@@ -542,8 +542,8 @@ class CvEventManager:
 		if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_LUCHUIRP'):
 			cf.doTurnLuchuirp(iPlayer)
 
-		# Better AI: Doviello
-		if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_DOVIELLO'):
+		# Better AI: Doviello, etc.
+		if pPlayer.getCivilizationType() in (gc.getInfoTypeForString('CIVILIZATION_DOVIELLO'), gc.getInfoTypeForString('CIVILIZATION_INFERNAL'), gc.getInfoTypeForString('CIVILIZATION_MERCURIANS')):
 			pPlayer.startConquestMode()
 		# End Better AI
 
@@ -1655,10 +1655,6 @@ class CvEventManager:
 				if iTechType == gc.getInfoTypeForString('TECH_MASONRY'):
 					pPlayer.startConquestMode()
 
-			if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_DOVIELLO'):											 
-				if iTechType == gc.getInfoTypeForString('TECH_FESTIVALS'):
-					pPlayer.startConquestMode()
-
 			if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_ELOHIM'):
 				if iTechType == gc.getInfoTypeForString('TECH_PRIESTHOOD'):
 					pPlayer.startConquestMode()
@@ -1683,10 +1679,6 @@ class CvEventManager:
 				if iTechType == gc.getInfoTypeForString('TECH_IRON_WORKING'):
 					pPlayer.startConquestMode()
 
-			if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_INFERNAL'):
-				if iTechType == gc.getInfoTypeForString('TECH_IRON_WORKING'):
-					pPlayer.startConquestMode()
-					
 			if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_KHAZAD'):
 				if iTechType == gc.getInfoTypeForString('TECH_IRON_WORKING'):
 					pPlayer.startConquestMode()
@@ -1694,8 +1686,7 @@ class CvEventManager:
 			if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_KURIOTATES'):
 				if iTechType == gc.getInfoTypeForString('TECH_STIRRUPS'):
 					pPlayer.startConquestMode()
-					
-					
+
 			if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_LANUN'):
 				if iTechType == gc.getInfoTypeForString('TECH_IRON_WORKING'):
 					pPlayer.startConquestMode()
@@ -1712,10 +1703,6 @@ class CvEventManager:
 				if iTechType == gc.getInfoTypeForString('TECH_PRIESTHOOD'):
 					pPlayer.startConquestMode()
 
-			if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_MERCURIANS'):
-				if iTechType == gc.getInfoTypeForString('TECH_IRON_WORKING'):
-					pPlayer.startConquestMode()
-					
 			if pPlayer.getCivilizationType() == gc.getInfoTypeForString('CIVILIZATION_SHEAIM'):
 				if iTechType == gc.getInfoTypeForString('TECH_BRONZE_WORKING'):
 					pPlayer.startConquestMode()

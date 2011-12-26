@@ -10790,11 +10790,21 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 		iTempValue += ((kCivic.getYieldModifier(iI) * getNumCities()) / 2);
 		iTempValue += ((kCivic.getCapitalYieldModifier(iI) * 3) / 4);
+
+        // Better AI: Prioritise God King for one city empires
+        if (getNumCities() < 2 && kCivic.getCapitalYieldModifier(iI) > 0)
+        {
+            iTempValue += kCivic.getCapitalYieldModifier(iI) * 10;
+        }
+        // End Better AI
+
 		CvCity* pCapital = getCapitalCity();
+
 		if (pCapital)
 		{
 			iTempValue += ((kCivic.getCapitalYieldModifier(iI) * pCapital->getBaseYieldRate((YieldTypes)iI)) / 80);
 		}
+
 		iTempValue += ((kCivic.getTradeYieldModifier(iI) * getNumCities()) / 11);
 
 		for (iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)

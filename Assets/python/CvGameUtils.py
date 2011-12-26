@@ -269,6 +269,16 @@ class CvGameUtils:
 		pPlayer = gc.getPlayer(ePlayer)
 		eTeam = gc.getTeam(pPlayer.getTeam())
 
+		if not pPlayer.isHuman():
+			if pPlayer.hasTrait(gc.getInfoTypeForString('TRAIT_FALLOW')):
+				# Avoid civics that make little sense for a fallow civ
+				if eCivic == gc.getInfoTypeForString('CIVIC_ARISTOCRACY'):
+					return True
+				elif eCivic == gc.getInfoTypeForString('CIVIC_SACRIFICE_THE_WEAK'):
+					return True
+				elif eCivic == gc.getInfoTypeForString('CIVIC_AGRARIANISM'):
+					return True
+
 		return False
 		
 	def canTrain(self,argsList):
