@@ -3218,13 +3218,11 @@ void CvTeamAI::AI_doWar()
             if (kPlayer.isConquestMode())
             {
                 bConquestMode = true;
-                break;
             }
 
             if (kPlayer.AI_isFinancialTrouble())
             {
                 bFinancialTrouble = true;
-                break;
             }
         }
     }
@@ -3370,7 +3368,7 @@ void CvTeamAI::AI_doWar()
         }
     }
     // If no war plans, consider starting one
-    else if (getAnyWarPlanCount(true) == 0)
+    else if (getAnyWarPlanCount(true) == 0 && (bAggressive || !bFinancialTrouble))
     {
         TeamTypes eBestTeam = NO_TEAM;
         int iBestValue = 0;
@@ -3424,17 +3422,11 @@ void CvTeamAI::AI_doWar()
 
             int iTheirPower = kTeam.getDefensivePower();
 
-            int iPowerThreshold = iOurPower * (bNearby ? AI_maxWarNearbyPowerRatio() : AI_maxWarDistantPowerRatio()) / 100;
+            int iPowerThreshold = iOurPower * AI_maxWarNearbyPowerRatio() / 100;
 
             if ((bConquestMode ? (iTheirPower / 2) : (iTheirPower * 2)) > iPowerThreshold)
             {
                 // Too powerful
-                continue;
-            }
-
-            if (bFinancialTrouble && iTheirPower > iPowerThreshold) 
-            {
-                // Don't attack with bad finances if not already ready
                 continue;
             }
 
@@ -3481,9 +3473,9 @@ void CvTeamAI::AI_doWar()
 
             if (iOurPower >= (iTheirPower * AI_maxWarNearbyPowerRatio() / 100))
             {
-                AI_setWarPlan(eBestTeam, WARPLAN_TOTAL);
+                AI_setWarPlan(eBestTeam, bConquestMode ? WARPLAN_TOTAL : WARPLAN_LIMITED);
             }
-            else
+            else if (bConquestMode)
             {
                 AI_setWarPlan(eBestTeam, WARPLAN_PREPARING_TOTAL);
             }
