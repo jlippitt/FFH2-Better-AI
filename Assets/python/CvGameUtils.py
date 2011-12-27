@@ -2184,7 +2184,7 @@ class CvGameUtils:
 #Infernal
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_INFERNAL'):
 			iValue[sProd.index('BUILDINGCLASS_CATACOMB_LIBRALUS')]=-10000								
-			if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
+			if pPlayer.countGroupFlagUnits(10) < 15 or pPlayer.countGroupFlagUnits(10) < pPlayer.getNumCities() * iDif:
 				totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
 				totalmelee=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_AXEMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_CHAMPION'),pCity.area())
 				totalarchers=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_LONGBOWMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ARCHER'),pCity.area())
@@ -2208,11 +2208,11 @@ class CvGameUtils:
 				if totalmages<3:
 					iValue[sProd.index('UNITCLASS_ADEPT')]+=2000						
 				
-				if iReli!=-1:
+				if pPlayer.getNumCities() >= 2 and iReli!=-1:
 					iValue[sProd.index(sReli)]+=1200+10*(totalunits-totalpriests)	
 				if pPlayer.getNumCities() >= 3 and pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_HUNTING_LODGE'))*5:
 					iValue[sProd.index('BUILDINGCLASS_HUNTING_LODGE')]=iValue[sProd.index('UNITCLASS_HUNTER')]+10
-				if pPlayer.getNumCities() >= 3 and pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_SIEGE_WORKSHOP'))*5:
+				if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_SIEGE_WORKSHOP'))*5:
 					iValue[sProd.index('BUILDINGCLASS_SIEGE_WORKSHOP')]=iValue[sProd.index('UNITCLASS_CATAPULT')]+10
 				if pPlayer.getNumCities() >= 3 and pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_STABLE'))*5:
 					iValue[sProd.index('BUILDINGCLASS_STABLE')]=iValue[sProd.index('UNITCLASS_HORSEMAN')]+10				
@@ -2501,7 +2501,7 @@ class CvGameUtils:
 			
 #Mercurians
 		if civtype == gc.getInfoTypeForString('CIVILIZATION_MERCURIANS'):
-			if pPlayer.countGroupFlagUnits(10)<pPlayer.getNumCities()*iDif:
+			if pPlayer.countGroupFlagUnits(10) < 15 or pPlayer.countGroupFlagUnits(10) < pPlayer.getNumCities() * iDif:
 				totalmages=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ADEPT'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_MAGE'),pCity.area())
 				totalmelee=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_AXEMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_CHAMPION'),pCity.area())
 				totalarchers=pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_LONGBOWMAN'),pCity.area())+pPlayer.getConquestUnitClassCount(gc.getInfoTypeForString('UNITCLASS_ARCHER'),pCity.area())
@@ -2525,13 +2525,13 @@ class CvGameUtils:
 				if totalmages<3:
 					iValue[sProd.index('UNITCLASS_ADEPT')]+=2000						
 				
-				if iReli!=-1:
+				if pPlayer.getNumCities() >= 2 and iReli!=-1:
 					iValue[sProd.index(sReli)]+=1200+10*(totalunits-totalpriests)	
 				if pPlayer.getNumCities() >= 3 and pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_HUNTING_LODGE'))*5:
 					iValue[sProd.index('BUILDINGCLASS_HUNTING_LODGE')]=iValue[sProd.index('UNITCLASS_HUNTER')]+10
 				if pPlayer.getNumCities() >= 3 and pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_MAGE_GUILD'))*5:
 					iValue[sProd.index('BUILDINGCLASS_MAGE_GUILD')]=iValue[sProd.index('UNITCLASS_ADEPT')]+10			
-				if pPlayer.getNumCities() >= 3 and pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_SIEGE_WORKSHOP'))*5:
+				if pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_SIEGE_WORKSHOP'))*5:
 					iValue[sProd.index('BUILDINGCLASS_SIEGE_WORKSHOP')]=iValue[sProd.index('UNITCLASS_CATAPULT')]+10
 				if pPlayer.getNumCities() >= 3 and pPlayer.getNumCities()>pPlayer.getBuildingClassCountPlusMaking(gc.getInfoTypeForString('BUILDINGCLASS_STABLE'))*5:
 					iValue[sProd.index('BUILDINGCLASS_STABLE')]=iValue[sProd.index('UNITCLASS_HORSEMAN')]+10				
