@@ -21267,7 +21267,7 @@ void CvUnitAI::ConquestMove()
                 if (pBestUnit!=NULL)
                 {
                     pBestUnit->joinGroup(NULL);
-                    pBestUnit->AI_setGroupflag(GROUPFLAG_PERMDEFENSE);
+                    pBestUnit->AI_setGroupflag(GROUPFLAG_PERMDEFENSE_NEW);
                     pBestUnit->getGroup()->pushMission(MISSION_SKIP);
                     iEnough++;
                 }
