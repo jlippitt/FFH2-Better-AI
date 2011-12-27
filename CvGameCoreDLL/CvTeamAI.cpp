@@ -3287,6 +3287,7 @@ void CvTeamAI::AI_doWar()
                 }
                 break;
 
+            case WARPLAN_LIMITED:
             case WARPLAN_TOTAL:
                 if (!isAtWar((TeamTypes)iI))
                 {
@@ -3370,114 +3371,178 @@ void CvTeamAI::AI_doWar()
     // If no war plans, consider starting one
     else if (getAnyWarPlanCount(true) == 0 && (bAggressive || !bFinancialTrouble))
     {
-        TeamTypes eBestTeam = NO_TEAM;
-        int iBestValue = 0;
-        int iBestPower = 0;
-
-        for (int iI = 0; iI < MAX_CIV_TEAMS; ++iI)
+        for (int iPass = 0; iPass < 2; ++iPass)
         {
-            CvTeamAI& kTeam = GET_TEAM((TeamTypes)iI);
+            TeamTypes eBestTeam = NO_TEAM;
+            int iBestValue = 0;
+            bool bBestReady = false;
 
-            // Eliminate irrelevant teams
-            if (!kTeam.isAlive())
+            for (int iI = 0; iI < MAX_CIV_TEAMS; ++iI)
             {
-                continue;
+                // Eliminate irrelevant teams
+                if (iI == getID())
+                {
+                    continue;
+                }
+    
+                CvTeamAI& kTeam = GET_TEAM((TeamTypes)iI);
+    
+                if (!kTeam.isAlive())
+                {
+                    continue;
+                }
+    
+                if (kTeam.isBarbarian())
+                {
+                    continue;
+                }
+    
+                if (!isHasMet((TeamTypes)iI))
+                {
+                    continue;
+                }
+    
+                if (!canDeclareWar((TeamTypes)iI))
+                {
+                    continue;
+                }
+    
+                if (!AI_hasCitiesInPrimaryArea((TeamTypes)iI))
+                {
+                    continue;
+                }
+                
+                // Work out priority for this team
+                bool bReady  = false;
+    
+                int iAdjacentPlots = AI_calculateAdjacentLandPlots((TeamTypes)iI);
+    
+                if (iAdjacentPlots == 0)
+                {
+                    // TODO: Determine a reasonable attacking distance?
+                    continue;
+                }
+
+                int iDogpilePower = iOurPower;
+
+                // Dogpile logic
+                if (iPass == 1)
+                {
+                    bool bDogpileValid = false;
+
+                    for (int iJ = 0; iJ < MAX_CIV_TEAMS; ++iJ)
+                    {
+                        if (iJ == iI || iJ == getID())
+                        {
+                            continue;
+                        }
+
+                        CvTeam& kDogpileTeam = GET_TEAM((TeamTypes)iJ);
+
+                        if (!kDogpileTeam.isAlive())
+                        {
+                            continue;
+                        }
+
+                        if (kDogpileTeam.isBarbarian())
+                        {
+                            continue;
+                        }
+
+                        if (!isHasMet((TeamTypes)iJ))
+                        {
+                            // Would be cheating otherwise
+                            continue;
+                        }
+
+                        if (kDogpileTeam.isAtWar((TeamTypes)iI))
+                        {
+                            bDogpileValid = true;
+                            iDogpilePower += kTeam.getPower(true);
+                        }
+                    }
+
+                    if (!bDogpileValid)
+                    {
+                        continue;
+                    }
+                }
+    
+                int iTheirPower = kTeam.getDefensivePower();
+
+                if (iDogpilePower >= (iTheirPower * AI_maxWarNearbyPowerRatio() / 100))
+                {
+                    bReady = true;
+                }
+                else if (bConquestMode && iPass == 0)
+                {
+                    // Use population ratio to determine if it's even worth trying
+                    int iPopRatio = getTotalPopulation(true) * 100 / kTeam.getTotalPopulation(true);
+    
+                    if ((iOurPower * iPopRatio / 100) < (iTheirPower * AI_maxWarNearbyPowerRatio() / 200))
+                    {
+                        // Too powerful
+                        continue;
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+    
+                int iValue = AI_startWarVal((TeamTypes)iI) * iDogpilePower / iTheirPower;
+    
+                if (!bAggressive)
+                {
+                    iValue *= (100 - AI_noWarAttitudeProb(AI_getAttitude((TeamTypes)iI)));
+                    iValue /= 100;
+                }
+    
+                if (iPass == 0 && iAdjacentPlots >= ((getTotalLand() * AI_maxWarMinAdjacentLandPercent()) / 100))
+                {
+                    iValue *= 2;
+                }
+    
+                if (iValue > 0)
+                {
+                    char szLog[1024];
+    
+                    sprintf(szLog,
+                            "%d - %S %s vs. %S = %d\n",
+                            GC.getGameINLINE().getGameTurn(),
+                            GET_PLAYER(getLeaderID()).getName(),
+                            iPass ? "dogpile" : "max war",
+                            GET_PLAYER(kTeam.getLeaderID()).getName(),
+                            iValue);
+    
+                    gDLL->logMsg("war.log", szLog);
+                }
+    
+                if (iValue > iBestValue)
+                {
+                    eBestTeam = (TeamTypes)iI;
+                    iBestValue = iValue;
+                    bBestReady = bReady;
+                }
             }
-
-            if (iI == getID())
+    
+            if (eBestTeam != NO_TEAM)
             {
-                continue;
-            }
-
-            if (!isHasMet((TeamTypes)iI))
-            {
-                continue;
-            }
-
-            if (!canDeclareWar((TeamTypes)iI))
-            {
-                continue;
-            }
-
-            if (!AI_hasCitiesInPrimaryArea((TeamTypes)iI))
-            {
-                continue;
-            }
-            
-            // Work out priority for this team
-            bool bNearby = false;
-
-            int iAdjacentPlots = AI_calculateAdjacentLandPlots((TeamTypes)iI);
-
-            if (iAdjacentPlots == 0)
-            {
-                // TODO: Determine a reasonable attacking distance?
-                continue;
-            }
-
-            if (iAdjacentPlots >= ((getTotalLand() * AI_maxWarMinAdjacentLandPercent()) / 100))
-            {
-                bNearby = true;
-            }
-
-            int iTheirPower = kTeam.getDefensivePower();
-
-            int iPowerThreshold = iOurPower * AI_maxWarNearbyPowerRatio() / 100;
-
-            if ((bConquestMode ? (iTheirPower / 2) : (iTheirPower * 2)) > iPowerThreshold)
-            {
-                // Too powerful
-                continue;
-            }
-
-            int iValue = AI_startWarVal((TeamTypes)iI) * iOurPower / iTheirPower;
-
-            if (!bAggressive)
-            {
-                iValue *= (100 - AI_noWarAttitudeProb(AI_getAttitude((TeamTypes)iI)));
-                iValue /= 100;
-            }
-
-            if (bNearby)
-            {
-                iValue *= 2;
-            }
-
-            if (iValue > 0)
-            {
-                char szLog[1024];
-
-                sprintf(szLog,
-                        "%d - %S vs. %S = %d\n",
-                        GC.getGameINLINE().getGameTurn(),
-                        GET_PLAYER(getLeaderID()).getName(),
-                        GET_PLAYER(kTeam.getLeaderID()).getName(),
-                        iValue);
-
-                gDLL->logMsg("war.log", szLog);
-            }
-
-            if (iValue > iBestValue)
-            {
-                eBestTeam = (TeamTypes)iI;
-                iBestValue = iValue;
-                iBestPower = iTheirPower;
-            }
-        }
-
-        if (eBestTeam != NO_TEAM)
-        {
-            CvTeamAI& kTeam = GET_TEAM(eBestTeam);
-
-            int iTheirPower = kTeam.getDefensivePower();
-
-            if (iOurPower >= (iTheirPower * AI_maxWarNearbyPowerRatio() / 100))
-            {
-                AI_setWarPlan(eBestTeam, bConquestMode ? WARPLAN_TOTAL : WARPLAN_LIMITED);
-            }
-            else if (bConquestMode)
-            {
-                AI_setWarPlan(eBestTeam, WARPLAN_PREPARING_TOTAL);
+                if (iPass == 0)
+                {
+                    if (bBestReady)
+                    {
+                        AI_setWarPlan(eBestTeam, bConquestMode ? WARPLAN_TOTAL : WARPLAN_LIMITED);
+                    }
+                    else if (bConquestMode)
+                    {
+                        AI_setWarPlan(eBestTeam, WARPLAN_PREPARING_TOTAL);
+                    }
+                }
+                else
+                {
+                    AI_setWarPlan(eBestTeam, WARPLAN_DOGPILE);
+                }
             }
         }
     }
