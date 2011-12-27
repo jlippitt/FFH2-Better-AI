@@ -19734,7 +19734,7 @@ void CvPlayerAI::AI_doExpansion()
 
 bool CvPlayerAI::AI_isTrapped() const
 {
-    if (AI_getNumCitySites() == 0)
+    if (!isConquestMode() && AI_getNumCitySites() == 0 && AI_neededExplorers(getCapitalCity()->area()) == 0)
     {
         // Do we have anyone to fight?
         CvTeamAI& kOurTeam = GET_TEAM(getTeam());
