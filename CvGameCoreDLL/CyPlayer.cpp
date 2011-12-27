@@ -2406,3 +2406,9 @@ int CyPlayer::getConquestUnitClassCount(int UnitClass, CyArea* pArea) const
 /*************************************************************************************************/
 /**	END	                                        												**/
 /*************************************************************************************************/
+
+bool CyPlayer::AI_isTrapped() const
+{
+    return m_pPlayer ? m_pPlayer->AI_isTrapped() : false;
+}
+

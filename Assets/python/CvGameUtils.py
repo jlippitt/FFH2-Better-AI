@@ -1502,19 +1502,23 @@ class CvGameUtils:
 # Civ needs more Settlers?
 		if	(not bConquestMode) or pPlayer.countGroupFlagUnits(10)>20:
 			if pPlayer.getNumCities() < pPlayer.getMaxCities() or pPlayer.getMaxCities()<=0:
-				bvalid=false
-				if (pCity.getCurrentProductionDifference(True,False)>10 and pCity.getPopulation() > 4):
-					if not pCity.isCapital():
-						bvalid=true
-				if pCity.isCapital():
-					if pCity.happyLevel()<=pCity.unhappyLevel(0) or (pCity.foodDifference(false)<2):
-						bvalid=true										
-				if bvalid:
-					iSettlerBadlyNeeded=1				
-					if pPlayer.getNumCities()>3:
-						iSettlerBadlyNeeded=2+pPlayer.getNumCities()/10
-					if pPlayer.getUnitClassCountPlusMaking(gc.getInfoTypeForString('UNITCLASS_SETTLER'))<iSettlerBadlyNeeded:
-						iValue[sProd.index('UNITCLASS_SETTLER')]=17000
+				if not pPlayer.AI_isTrapped():
+					bvalid=false
+					if (pCity.getCurrentProductionDifference(True,False)>10 and pCity.getPopulation() > 4):
+						if not pCity.isCapital():
+							bvalid=true
+					if pCity.isCapital():
+						if pCity.happyLevel()<=pCity.unhappyLevel(0) or (pCity.foodDifference(false)<2):
+							bvalid=true										
+					if bvalid:
+						iSettlerBadlyNeeded=1				
+						if pPlayer.getNumCities()>3:
+							iSettlerBadlyNeeded=2+pPlayer.getNumCities()/10
+						if pPlayer.getUnitClassCountPlusMaking(gc.getInfoTypeForString('UNITCLASS_SETTLER'))<iSettlerBadlyNeeded:
+							iValue[sProd.index('UNITCLASS_SETTLER')]=17000
+				else:
+					# No more expansion - fight our way out!
+					pPlayer.startConquestMode()
 
 #Civ Needs more Barbsmashers?
 		if not bConquestMode:

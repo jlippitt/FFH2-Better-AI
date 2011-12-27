@@ -1152,11 +1152,13 @@ public:
 	virtual void AI_doAdvancedStart(bool bNoExit = false) = 0;
 	virtual void AI_updateBonusValue() = 0;
 	virtual void AI_updateBonusValue(BonusTypes eBonus) = 0;
-	virtual ReligionTypes AI_chooseReligion() = 0;
+	//virtual ReligionTypes AI_chooseReligion() = 0;
 	virtual int AI_getExtraGoldTarget() const = 0;
 	virtual void AI_setExtraGoldTarget(int iNewValue) = 0;
 	virtual int AI_maxGoldPerTurnTrade(PlayerTypes ePlayer) const = 0;
 	virtual int AI_maxGoldTrade(PlayerTypes ePlayer) const = 0;
+
+    virtual bool AI_isTrapped() const = 0; // Exposed to Python
 
 protected:
 

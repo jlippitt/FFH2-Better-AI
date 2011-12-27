@@ -363,6 +363,8 @@ public:
 	UnitArtStyleTypes getUnitArtStyleType() const;
 //<<<<BUGFfH: End Add
 
+    bool AI_isTrapped() const;
+
 	// for serialization
   virtual void read(FDataStreamBase* pStream);
   virtual void write(FDataStreamBase* pStream);

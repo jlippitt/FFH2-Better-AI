@@ -19731,3 +19731,45 @@ void CvPlayerAI::AI_doExpansion()
 /*************************************************************************************************/
 /**	End																							**/
 /*************************************************************************************************/
+
+bool CvPlayerAI::AI_isTrapped() const
+{
+    if (AI_getNumCitySites() == 0)
+    {
+        // Do we have anyone to fight?
+        CvTeamAI& kOurTeam = GET_TEAM(getTeam());
+
+        for (int iI = 0; iI < MAX_CIV_TEAMS; ++iI)
+        {
+            if (iI == getTeam())
+            {
+                continue;
+            }
+
+            CvTeamAI& kTheirTeam = GET_TEAM((TeamTypes)iI);
+
+            if (!kTheirTeam.isAlive())
+            {
+                continue;
+            }
+
+            if (kTheirTeam.isBarbarian())
+            {
+                continue;
+            }
+
+            if (!kOurTeam.canDeclareWar((TeamTypes)iI))
+            {
+                continue;
+            }
+
+            if (kOurTeam.AI_calculateAdjacentLandPlots((TeamTypes)iI) > 0)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
