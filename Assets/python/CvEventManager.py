@@ -1757,17 +1757,15 @@ class CvEventManager:
 					for i in range (CyMap().numPlots()):
 						pPlot = CyMap().plotByIndex(i)
 						iPlot = -1
-						if pPlot.isWater() == False:
+						if pPlayer.canFound(pPlot.getX(), pPlot.getY()):
 							if pPlot.getNumUnits() == 0:
-								if pPlot.isCity() == False:
-									if pPlot.isImpassable() == False:
-										iPlot = CyGame().getSorenRandNum(500, "Place Hyborem")
-										iPlot = iPlot + (pPlot.area().getNumTiles() * 2)
-										iPlot = iPlot + (pPlot.area().getNumUnownedTiles() * 10)
-										if pPlot.isOwned() == False:
-											iPlot = iPlot + 500
-										if pPlot.getOwner() == iPlayer:
-											iPlot = iPlot + 200
+								iPlot = CyGame().getSorenRandNum(500, "Place Hyborem")
+								iPlot = iPlot + (pPlot.area().getNumTiles() * 2)
+								iPlot = iPlot + (pPlot.area().getNumUnownedTiles() * 10)
+								if pPlot.isOwned() == False:
+									iPlot = iPlot + 500
+								if pPlot.getOwner() == iPlayer:
+									iPlot = iPlot + 200
 						if iPlot > iBestPlot:
 							iBestPlot = iPlot
 							pBestPlot = pPlot
