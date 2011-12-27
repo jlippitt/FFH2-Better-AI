@@ -153,6 +153,8 @@ void CyInfoPythonInterface3()
 //FfH: End Add
 //FfH: End Add
 
+        .def("getAlignment", &CvLeaderHeadInfo::getAlignment, "int ()")
+
 /*************************************************************************************************/
 /**	BETTER AI (New Functions Definition) Sephi                                 					**/
 /**																								**/

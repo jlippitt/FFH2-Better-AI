@@ -848,6 +848,32 @@ class CvGameUtils:
 					iTech = gc.getInfoTypeForString('TECH_ANIMAL_HANDLING')
 						
 #Advanced Religion Beelines					
+
+			# Better AI: All religions should be founded by someone, ideally
+			if not pPlayer.hasTrait(gc.getInfoTypeForString('TRAIT_AGNOSTIC')) and pPlayer.countHolyCities() == 0:
+				game = gc.getGame()
+				iAlignment = gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getAlignment()
+				if iAlignment == gc.getInfoTypeForString('ALIGNMENT_GOOD'):
+					if not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_THE_ORDER')):
+						iTech = gc.getInfoTypeForString('TECH_ORDERS_FROM_HEAVEN')
+					elif not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_THE_EMPYREAN')):
+						iTech = gc.getInfoTypeForString('TECH_HONOR')
+
+				elif iAlignment == gc.getInfoTypeForString('ALIGNMENT_NEUTRAL'):
+					if not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_THE_EMPYREAN')):
+						iTech = gc.getInfoTypeForString('TECH_HONOR')
+					elif not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_COUNCIL_OF_ESUS')):
+						iTech = gc.getInfoTypeForString('TECH_DECEPTION')
+
+				elif iAlignment == gc.getInfoTypeForString('ALIGNMENT_EVIL'):
+					if not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_THE_ASHEN_VEIL')):
+						iTech = gc.getInfoTypeForString('TECH_CORRUPTION_OF_SPIRIT')
+					elif not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_COUNCIL_OF_ESUS')):
+						iTech = gc.getInfoTypeForString('TECH_DECEPTION')
+
+			if pPlayer.canResearch(gc.getInfoTypeForString('TECH_INFERNAL_PACT'), False):
+				iTech = gc.getInfoTypeForString('TECH_INFERNAL_PACT')
+			# End Better AI
 							
 			if (iFavRel !=ReligionTypes.NO_RELIGION):
 				if (gc.getReligionInfo(iFavRel).getReligionTech2()!=TechTypes.NO_TECH):										
@@ -983,15 +1009,16 @@ class CvGameUtils:
 					countreli+=1
 				if countreli==0:
 					game = gc.getGame()
+					iAlignment = gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getAlignment()
 					bHasReligion = pPlayer.countTotalHasReligion() > 0
 
-					if pPlayer.getAlignment() == gc.getInfoTypeForString('ALIGNMENT_GOOD'):
+					if iAlignment == gc.getInfoTypeForString('ALIGNMENT_GOOD'):
 						if not bHasReligion or not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_RUNES_OF_KILMORPH')):
 							iTech = gc.getInfoTypeForString('TECH_WAY_OF_THE_EARTHMOTHER')
-					elif pPlayer.getAlignment() == gc.getInfoTypeForString('ALIGNMENT_NEUTRAL'):
+					elif iAlignment == gc.getInfoTypeForString('ALIGNMENT_NEUTRAL'):
 						if not bHasReligion or not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_WAY_OF_THE_FORESTS')):
 							iTech = gc.getInfoTypeForString('TECH_WAY_OF_THE_FORESTS')
-					elif pPlayer.getAlignment() == gc.getInfoTypeForString('ALIGNMENT_EVIL'):
+					elif iAlignment == gc.getInfoTypeForString('ALIGNMENT_EVIL'):
 						if not bHasReligion or not game.isReligionFounded(gc.getInfoTypeForString('RELIGION_OCTOPUS_OVERLORDS')):
 							iTech = gc.getInfoTypeForString('TECH_MESSAGE_FROM_THE_DEEP')
 						
